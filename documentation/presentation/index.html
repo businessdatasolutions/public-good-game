@@ -356,18 +356,32 @@
                 .reveal .slides section[data-state="scrollHeight"]::-webkit-scrollbar-thumb:hover { background: var(--highlight-hover-color); }
                 ```
     */
-      #pdSketchContainer {
+      #pdMatrixStaticContainer {
         width: 100%;
-        max-width: 600px; /* Misschien iets breder toestaan nu labels horizontaal zijn */
-        height: 420px; /* Iets meer hoogte voor de horizontale labels */
+        max-width: 750px; /* Iets breder om grotere matrix te accommoderen */
+        height: 450px; /* Meer hoogte voor grotere matrix en labels */
+        margin: 10px auto; /* Kleinere top/bottom marge als slide vol raakt */
+        border: 1.5px solid var(--highlight-color);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      #pdAnalysisMatrixContainer {
+        width: 100%; /* Behoud dit om flexbox de breedte te laten bepalen */
+        max-width: 480px; /* Max breedte blijft */
+        height: 360px; /* Misschien iets verhogen als de relatieve labels meer vragen, start met 360-380 */
         margin: 15px auto;
         border: 1.5px solid var(--highlight-color);
         border-radius: 4px;
         overflow: hidden;
       }
-      #pdAnalysisSketchContainer {
-        height: 180px; /* Iets meer hoogte voor de analyse tekst */
-        border: none;
+      .code-block {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.9em; /* Relatief aan ouder p/li */
+        background-color: #e8e8e0;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-top: 0.2em;
+        display: inline-block; /* Of block als je de hele breedte wilt */
       }
     </style>
   </head>
@@ -490,24 +504,169 @@
           </p>
         </section>
 
-        <!-- HIERVOOR WAS DE SLIDE "Sociale Dilemma's Oplossen" -->
+        <section data-state="scrollHeight">
+          <h2>Experiment: Het Publieke Goederenspel</h2>
+
+          <div class="column-layout">
+            <div
+              class="text-column bullet-points"
+              style="flex: 1.2"
+            >
+              <ul>
+                <li class="fragment">
+                  <strong>Groep & Rondes:</strong> 4 studenten, 10 rondes,
+                  anoniem.
+                </li>
+                <li class="fragment">
+                  <strong>Startkapitaal:</strong> 20 tokens per ronde.
+                </li>
+                <li class="fragment">
+                  <strong>Keuze:</strong> Bijdrage aan project (0-20 tokens).
+                  Rest voor jezelf.
+                </li>
+              </ul>
+            </div>
+            <div
+              class="text-column bullet-points"
+              style="flex: 1.2"
+            >
+              <ul>
+                <li class="fragment">
+                  <strong>Projectopbrengst:</strong>
+                  <ul>
+                    <li>Input: 1 token → Output project: 1.6 tokens.</li>
+                    <li>
+                      Jouw aandeel: 0.4 token per bijgedragen token (door
+                      iedereen).
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <section data-state="scrollHeight">
+          <h2>Spelregels</h2>
+          <div class="column-layout">
+            <div class="text-column bullet-points">
+              <ul>
+                <li>
+                  <strong>Doel:</strong> Maximaal totaal inkomen na 10 rondes.
+                </li>
+                <li style="color: var(--highlight-color); margin-top: 10px">
+                  <strong>Regel:</strong> Beslissingen privé! Niet overleggen.
+                </li>
+              </ul>
+            </div>
+            <div
+              class="image-column"
+              style="align-self: center"
+            >
+              <img
+                src="game-rules.png"
+                alt="People palying a game"
+                class="bordered-image"
+                style="max-width: 500px; max-height: 400px"
+              />
+            </div>
+          </div>
+          <aside class="notes">
+            Leg uit dat dit een live experiment is. Loop de regels stap voor
+            stap door. Benadruk de berekening van de inkomsten. Herinner
+            studenten aan de geheimhoudingsregel.
+          </aside>
+        </section>
+
+        <!-- Eventuele extra slide met de begripvragen van pagina 2 van de PDF -->
+        <section data-state="scrollHeight">
+          <h2>Publieke Goederenspel: Begripvragen</h2>
+          <div style="font-size: 0.75em">
+            <strong>Inkomsten per Ronde:</strong>
+            <p class="code-block">Tokens gehouden + (0.4 × Totaal project)</p>
+          </div>
+          <p>Test je begrip van de regels:</p>
+          <div
+            class="bullet-points"
+            style="font-size: 0.9em"
+          >
+            <!-- Iets kleinere tekst voor vragen -->
+            <ol style="list-style-type: decimal; padding-left: 20px">
+              <li
+                class="fragment"
+                style="background: none; padding-left: 0"
+              >
+                Elk groepslid heeft 20 tokens. Stel, de andere drie dragen
+                <strong>niets</strong> bij.
+                <ul style="margin-top: 5px">
+                  <li>
+                    (a) Wat zijn jouw inkomsten als jij
+                    <strong>niets</strong> bijdraagt?
+                  </li>
+                  <li>
+                    (b) Wat zijn jouw inkomsten als jij
+                    <strong>20 tokens</strong> bijdraagt?
+                  </li>
+                </ul>
+              </li>
+              <li
+                class="fragment"
+                style="background: none; padding-left: 0; margin-top: 15px"
+              >
+                Elk groepslid heeft 20 tokens. Stel, de andere drie dragen samen
+                <strong>12 tokens</strong> bij (exclusief jouw bijdrage).
+                <ul style="margin-top: 5px">
+                  <li>
+                    (a) Wat zijn jouw inkomsten als jij
+                    <strong>20 tokens</strong> bijdraagt?
+                  </li>
+                  <li>
+                    (b) Wat zijn jouw inkomsten als jij
+                    <strong>0 tokens</strong> bijdraagt?
+                  </li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+          <p
+            class="fragment"
+            style="margin-top: 20px"
+          >
+            <em
+              >Denk na over wat jouw optimale strategie zou zijn in deze
+              scenario's!</em
+            >
+          </p>
+          <aside class="notes">
+            Deze vragen helpen studenten de payoff-structuur te begrijpen.<br />Antwoorden:
+            <br />1a: Inkomsten = (20-0) + (0.4 * 0) = 20 tokens. <br />1b:
+            Inkomsten = (20-20) + (0.4 * 20) = 0 + 8 = 8 tokens.<br />
+            2a: Inkomsten = (20-20) + (0.4 * 32) = 0 + 12.8 = 12.8 tokens.<br />
+            2b: Inkomsten = (20-0) + (0.4 * 12) = 20 + 4.8 = 24.8 tokens.
+          </aside>
+        </section>
 
         <section data-state="scrollHeight">
           <h2>Het Gevangenendilemma: De Klassieker</h2>
           <div class="column-layout">
             <div class="text-column bullet-points">
-              <p>
-                Een van de bekendste spellen in de speltheorie, illustreert
-                waarom twee volledig rationale individuen mogelijk niet
-                samenwerken, zelfs als het in hun beider belang lijkt te zijn.
-              </p>
               <ul>
-                <li class="fragment">
+                <li
+                  class="fragment"
+                  data-fragment-index="1"
+                >
                   <strong>Scenario:</strong> Twee verdachten (gevangenen) worden
                   apart verhoord.
                 </li>
-                <li class="fragment">Ze kunnen niet communiceren.</li>
-                <li class="fragment">
+                <li
+                  class="fragment"
+                  data-fragment-index="2"
+                >
+                  Ze kunnen niet communiceren.
+                </li>
+                <li
+                  class="fragment"
+                  data-fragment-index="3"
+                >
                   Elk heeft twee keuzes:
                   <ul>
                     <li><strong>Bekennen</strong> (de ander verraden).</li>
@@ -519,9 +678,12 @@
                 </li>
               </ul>
             </div>
-            <div class="image-column fragment">
+            <div
+              class="image-column fragment"
+              data-fragment-index="4"
+            >
               <img
-                src="prisoners.jpg"
+                src="prisoner-dilemma.png"
                 alt="Twee gestileerde figuren achter tralies"
                 class="bordered-image"
               />
@@ -530,19 +692,25 @@
               >
             </div>
           </div>
+          <div>
+            <blockquote class="fragment">
+              Twee logisch denkende personen kiezen soms tegen samenwerking,
+              zelfs als samenwerken voor beiden voordeliger is.
+            </blockquote>
+          </div>
         </section>
 
         <section data-state="scrollHeight prisoner-dilemma-matrix-slide">
-          <h2>Gevangenendilemma: De Uitbetalingsmatrix</h2>
+          <h2>Gevangenendilemma: Uitbetalingsmatrix</h2>
           <p>
-            De uitbetalingen (jaren gevangenisstraf) hangen af van de keuzes van
-            beide gevangenen.
+            De uitkomsten (jaren straf) hangen af van de keuzes van beide
+            gevangenen.
           </p>
 
           <div
-            id="pdSketchContainer"
+            id="pdMatrixStaticContainer"
             style="
-              width: 500px;
+              width: 600px;
               height: 350px;
               margin: 20px auto;
               border: 1px solid var(--highlight-color);
@@ -558,44 +726,104 @@
           </p>
         </section>
 
+        <!-- Slide #/6: Analyse van het Dilemma -->
         <section data-state="scrollHeight prisoner-dilemma-analysis-slide">
-          <h2>Analyse van het Gevangenendilemma</h2>
-          <div class="bullet-points">
-            <p>Stel je bent Gevangene A:</p>
-            <ul>
-              <li class="fragment">
-                Als Gevangene B <strong>Zwijgt</strong>:
-                <ul>
-                  <li>Bekennen: 0 jaar (jij gaat vrij!)</li>
-                  <li>Zwijgen: 1 jaar</li>
-                  <li>Jouw beste keuze: <strong>Bekennen</strong></li>
-                </ul>
-              </li>
-              <li class="fragment">
-                Als Gevangene B <strong>Bekent</strong>:
-                <ul>
-                  <li>Bekennen: 5 jaar</li>
-                  <li>Zwijgen: 10 jaar (jij krijgt de volle mep!)</li>
-                  <li>Jouw beste keuze: <strong>Bekennen</strong></li>
-                </ul>
-              </li>
-            </ul>
+          <h2>Analyse van het Dilemma</h2>
+          <div class="column-layout">
+            <div
+              class="text-column bullet-points"
+              style="flex: 1.2"
+            >
+              <!-- Iets meer ruimte voor tekst -->
+              <p style="margin-bottom: 0.5em">Stel je bent Gevangene A:</p>
+              <ul>
+                <!-- STAP 1: B Zwijgt -->
+                <li
+                  class="fragment"
+                  data-analysis-step="B_Zwijgt_Header"
+                >
+                  Als B <strong>Zwijgt</strong>:
+                  <ul>
+                    <li
+                      class="fragment"
+                      data-analysis-step="B_Zwijgt_A_Beken"
+                    >
+                      A Bekent: 0 jaar
+                      <span
+                        style="
+                          color: var(--accent-color-blue);
+                          font-weight: bold;
+                        "
+                        >(Beste Keuze)</span
+                      >
+                    </li>
+                    <li
+                      class="fragment"
+                      data-analysis-step="B_Zwijgt_A_Zwijg"
+                    >
+                      A Zwijgt: 1 jaar
+                    </li>
+                  </ul>
+                </li>
+                <!-- STAP 2: B Bekent -->
+                <li
+                  class="fragment"
+                  data-analysis-step="B_Bekent_Header"
+                  style="margin-top: 1em"
+                >
+                  Als B <strong>Bekent</strong>:
+                  <ul>
+                    <li
+                      class="fragment"
+                      data-analysis-step="B_Bekent_A_Beken"
+                    >
+                      A Bekent: 5 jaar
+                      <span
+                        style="
+                          color: var(--accent-color-blue);
+                          font-weight: bold;
+                        "
+                        >(Beste Keuze)</span
+                      >
+                    </li>
+                    <li
+                      class="fragment"
+                      data-analysis-step="B_Bekent_A_Zwijg"
+                    >
+                      A Zwijgt: 10 jaar
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+              <!-- STAP 3: Dominante Strategie Conclusie -->
+            </div>
+            <div
+              class="matrix-column"
+              style="
+                flex: 1.8;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <div id="pdAnalysisMatrixContainer">
+                <!-- p5.js matrix sketch wordt hier opnieuw getekend/geüpdatet -->
+              </div>
+            </div>
+          </div>
+          <div>
             <p
               class="fragment"
-              style="margin-top: 1em"
+              data-analysis-step="A_Dominant"
+              style="
+                margin-top: 1.5em;
+                color: var(--heading-color);
+                font-weight: bold;
+              "
             >
-              <strong>Bekennen</strong> is een
-              <strong>dominante strategie</strong> voor Gevangene A!
+              Voor Gevangene A is <strong>Bekennen</strong> dus altijd de beste
+              keuze. Dit is A's <strong>dominante strategie</strong>.
             </p>
-            <p class="fragment">
-              Hetzelfde geldt voor Gevangene B (door symmetrie).
-            </p>
-            <div
-              id="pdAnalysisSketchContainer"
-              style="width: 500px; height: 150px; margin: 10px auto"
-            >
-              <!-- Optionele p5.js sketch voor analyse highlights -->
-            </div>
           </div>
         </section>
 
@@ -638,7 +866,7 @@
           </div>
         </section>
 
-        <!-- EINDE VAN DE TOEGEVOEGDE SLIDES -->
+        <!-- Plaats deze slide na de Gevangenendilemma slides -->
 
         <section data-state="scrollHeight">
           <h2>Sociale Dilemma's Oplossen</h2>
@@ -684,11 +912,11 @@
     <script src="plugin/notes/notes.js"></script>
     <script src="plugin/markdown/markdown.js"></script>
     <script src="plugin/highlight/highlight.js"></script>
-    <script>
-      // Binnen de <script> tag aan het einde van je index.html
 
-      let currentPdMatrixSketchInstance = null;
-      let currentPdAnalysisSketchInstance = null;
+    <script>
+      let pdMatrixStaticInstance = null;
+      let pdAnalysisMatrixInstance = null;
+      // let pdTextAnalysisInstance = null; // Als je die nog gebruikt
 
       Reveal.initialize({
         hash: true,
@@ -697,7 +925,7 @@
         center: true,
         slideNumber: "c/t",
         width: 1024,
-        height: 800, // Verhoogd zoals in je voorbeeld
+        height: 800,
         margin: 0.04,
         minScale: 0.2,
         maxScale: 2.0,
@@ -706,68 +934,66 @@
 
       function destroyP5Sketch(instance) {
         if (instance) {
-          instance.remove(); // Belangrijk om de sketch op te ruimen
-          instance = null;
+          instance.remove();
         }
+        return null;
       }
 
       Reveal.addEventListener("ready", function (event) {
-        // Initialiseer sketch als de presentatie op de juiste slide start
+        const currentSlide = Reveal.getCurrentSlide();
         if (
-          Reveal.getCurrentSlide().matches(
-            '[data-state~="prisoner-dilemma-matrix-slide"]'
-          )
+          currentSlide.matches('[data-state~="prisoner-dilemma-matrix-slide"]')
         ) {
-          destroyP5Sketch(currentPdMatrixSketchInstance);
-          currentPdMatrixSketchInstance = new p5(
-            pdMatrixSketch,
-            "pdSketchContainer"
+          pdMatrixStaticInstance = destroyP5Sketch(pdMatrixStaticInstance);
+          pdMatrixStaticInstance = new p5(
+            pdMatrixStaticSketch("pdMatrixStaticContainer"),
+            "pdMatrixStaticContainer"
           );
         }
         if (
-          Reveal.getCurrentSlide().matches(
+          currentSlide.matches(
             '[data-state~="prisoner-dilemma-analysis-slide"]'
           )
         ) {
-          destroyP5Sketch(currentPdAnalysisSketchInstance);
-          currentPdAnalysisSketchInstance = new p5(
-            pdAnalysisSketch,
-            "pdAnalysisSketchContainer"
+          pdAnalysisMatrixInstance = destroyP5Sketch(pdAnalysisMatrixInstance);
+          pdAnalysisMatrixInstance = new p5(
+            pdMatrixAnalysisSketch("pdAnalysisMatrixContainer"),
+            "pdAnalysisMatrixContainer"
           );
         }
+        // Voeg hier initialisatie voor pdTextAnalysisInstance toe indien nodig
       });
 
       Reveal.addEventListener("slidechanged", function (event) {
-        // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-
-        // Opruimen van de vorige slide sketch (indien aanwezig)
-        if (
-          event.previousSlide &&
-          event.previousSlide.matches(
-            '[data-state~="prisoner-dilemma-matrix-slide"]'
-          )
-        ) {
-          destroyP5Sketch(currentPdMatrixSketchInstance);
+        if (event.previousSlide) {
+          if (
+            event.previousSlide.matches(
+              '[data-state~="prisoner-dilemma-matrix-slide"]'
+            )
+          ) {
+            pdMatrixStaticInstance = destroyP5Sketch(pdMatrixStaticInstance);
+          }
+          if (
+            event.previousSlide.matches(
+              '[data-state~="prisoner-dilemma-analysis-slide"]'
+            )
+          ) {
+            pdAnalysisMatrixInstance = destroyP5Sketch(
+              pdAnalysisMatrixInstance
+            );
+            // pdTextAnalysisInstance = destroyP5Sketch(pdTextAnalysisInstance); // Indien gebruikt
+          }
         }
-        if (
-          event.previousSlide &&
-          event.previousSlide.matches(
-            '[data-state~="prisoner-dilemma-analysis-slide"]'
-          )
-        ) {
-          destroyP5Sketch(currentPdAnalysisSketchInstance);
-        }
 
-        // Initialiseren van de nieuwe slide sketch (indien relevant)
         if (
           event.currentSlide.matches(
             '[data-state~="prisoner-dilemma-matrix-slide"]'
           )
         ) {
-          destroyP5Sketch(currentPdMatrixSketchInstance); // Zekerheidshalve nogmaals
-          currentPdMatrixSketchInstance = new p5(
-            pdMatrixSketch,
-            "pdSketchContainer"
+          pdMatrixStaticInstance = destroyP5Sketch(pdMatrixStaticInstance);
+          pdMatrixStaticInstance = new p5(
+            pdMatrixStaticSketch("pdMatrixStaticContainer"),
+            "pdMatrixStaticContainer"
           );
         }
         if (
@@ -775,49 +1001,56 @@
             '[data-state~="prisoner-dilemma-analysis-slide"]'
           )
         ) {
-          destroyP5Sketch(currentPdAnalysisSketchInstance); // Zekerheidshalve
-          currentPdAnalysisSketchInstance = new p5(
-            pdAnalysisSketch,
-            "pdAnalysisSketchContainer"
+          pdAnalysisMatrixInstance = destroyP5Sketch(pdAnalysisMatrixInstance);
+          pdAnalysisMatrixInstance = new p5(
+            pdMatrixAnalysisSketch("pdAnalysisMatrixContainer"),
+            "pdAnalysisMatrixContainer"
           );
+          if (pdAnalysisMatrixInstance)
+            pdAnalysisMatrixInstance.updateAnalysisStep(null);
+          // pdTextAnalysisInstance = new p5(pdTextAnalysisSketch('pdTextAnalysisSketchContainer'), 'pdTextAnalysisSketchContainer'); // Indien gebruikt
         }
       });
 
-      // Interactie met de matrix sketch via fragmenten (voorbeeld)
       Reveal.addEventListener("fragmentshown", function (event) {
         if (
-          currentPdMatrixSketchInstance &&
+          pdAnalysisMatrixInstance &&
           Reveal.getCurrentSlide().matches(
-            '[data-state~="prisoner-dilemma-matrix-slide"]'
+            '[data-state~="prisoner-dilemma-analysis-slide"]'
           )
         ) {
-          // Dit is een heel simpele manier, je zou data-attributen op fragmenten kunnen gebruiken
-          let fragmentIndex = Reveal.getIndices(event.fragment).f;
-          if (fragmentIndex === 0)
-            currentPdMatrixSketchInstance.customHighlight(0, 0); // Zwijg, Zwijg
-          else if (fragmentIndex === 1)
-            currentPdMatrixSketchInstance.customHighlight(0, 1); // Zwijg, Beken
-          else if (fragmentIndex === 2)
-            currentPdMatrixSketchInstance.customHighlight(1, 0); // Beken, Zwijg
-          else if (fragmentIndex === 3)
-            currentPdMatrixSketchInstance.customHighlight(1, 1); // Beken, Beken
-          else if (fragmentIndex === 4)
-            currentPdMatrixSketchInstance.revealDominant(); // Toon dominante strategie
+          const analysisStep = event.fragment.dataset.analysisStep;
+          if (analysisStep) {
+            pdAnalysisMatrixInstance.updateAnalysisStep(analysisStep);
+          }
         }
+        // Voeg hier logica voor pdTextAnalysisInstance toe indien nodig
       });
 
       Reveal.addEventListener("fragmenthidden", function (event) {
         if (
-          currentPdMatrixSketchInstance &&
+          pdAnalysisMatrixInstance &&
           Reveal.getCurrentSlide().matches(
-            '[data-state~="prisoner-dilemma-matrix-slide"]'
+            '[data-state~="prisoner-dilemma-analysis-slide"]'
           )
         ) {
-          currentPdMatrixSketchInstance.clearHighlight(); // Of reset naar vorige state
+          // Logica om de staat te updaten op basis van het nu *vorige* zichtbare fragment
+          let visibleFragments =
+            Reveal.getCurrentSlide().querySelectorAll(".fragment.visible");
+          let lastVisibleStep = null;
+          if (visibleFragments.length > 0) {
+            let lastVisibleFragment =
+              visibleFragments[visibleFragments.length - 1];
+            if (lastVisibleFragment.dataset.analysisStep) {
+              lastVisibleStep = lastVisibleFragment.dataset.analysisStep;
+            }
+          }
+          pdAnalysisMatrixInstance.updateAnalysisStep(lastVisibleStep); // Kan null zijn als geen fragmenten meer zichtbaar
+
+          // Voeg hier logica voor pdTextAnalysisInstance toe indien nodig
         }
       });
     </script>
-    <!-- Aan het einde van <body>, na de Reveal.js initialize script -->
     <script src="sketches.js"></script>
   </body>
 </html>
