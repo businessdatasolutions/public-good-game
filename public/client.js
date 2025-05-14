@@ -395,6 +395,12 @@ function setupSocketListeners() {
         console.log('Received gameOver:', finalData);
         gameConfig.status = 'over';
         
+        // Show the confetti animation
+        const confettiElements = document.querySelectorAll('.confetti');
+        confettiElements.forEach((el) => {
+            el.style.opacity = "1";
+        });
+        
         document.getElementById('game-over-game-id').textContent = currentGameId;
 
         if (userRole === 'student') {
@@ -468,12 +474,22 @@ function displayContributionStage() {
     if (amountInput) { amountInput.value = ''; amountInput.disabled = false; }
     if (submitBtn) submitBtn.disabled = false;
     if (waitMsg) waitMsg.classList.add('hidden');
+    
+    // Update stage indicators
+    document.getElementById('contribution-dot').classList.add('active');
+    document.getElementById('punishment-dot').classList.remove('active');
+    document.getElementById('feedback-dot').classList.remove('active');
 }
 function displayPunishmentStage(data) {
     if (userRole !== 'student') return;
     document.getElementById('contribution-stage').classList.add('hidden');
     document.getElementById('punishment-stage').classList.remove('hidden');
     document.getElementById('feedback-stage').classList.add('hidden');
+    
+    // Update stage indicators
+    document.getElementById('contribution-dot').classList.remove('active');
+    document.getElementById('punishment-dot').classList.add('active');
+    document.getElementById('feedback-dot').classList.remove('active');
     const optionsContainer = document.getElementById('punishment-options');
     const submitBtn = document.getElementById('submit-punishment');
     const waitMsg = document.getElementById('punishment-wait');
@@ -521,6 +537,11 @@ function displayFeedbackStage(data) {
     document.getElementById('contribution-stage').classList.add('hidden');
     document.getElementById('punishment-stage').classList.add('hidden');
     document.getElementById('feedback-stage').classList.remove('hidden');
+    
+    // Update stage indicators
+    document.getElementById('contribution-dot').classList.remove('active');
+    document.getElementById('punishment-dot').classList.remove('active');
+    document.getElementById('feedback-dot').classList.add('active');
     document.getElementById('feedback-your-contribution').textContent = data.yourContribution ?? 0;
     document.getElementById('feedback-group-contribution').textContent = data.groupContribution ?? 0;
     document.getElementById('feedback-tokens-kept').textContent = (data.tokensKept ?? 0).toFixed(2);

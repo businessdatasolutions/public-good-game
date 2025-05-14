@@ -9,17 +9,91 @@
     <title>Public Goods Game</title>
     <!-- Link to Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                200: '#bae6fd',
+                300: '#7dd3fc',
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+                800: '#075985',
+                900: '#0c4a6e',
+              },
+              secondary: {
+                50: '#f5f3ff',
+                100: '#ede9fe',
+                200: '#ddd6fe',
+                300: '#c4b5fd',
+                400: '#a78bfa',
+                500: '#8b5cf6',
+                600: '#7c3aed',
+                700: '#6d28d9',
+                800: '#5b21b6',
+                900: '#4c1d95',
+              },
+              accent: {
+                50: '#ecfdf5',
+                100: '#d1fae5',
+                200: '#a7f3d0',
+                300: '#6ee7b7',
+                400: '#34d399',
+                500: '#10b981',
+                600: '#059669',
+                700: '#047857',
+                800: '#065f46',
+                900: '#064e3b',
+              },
+              neutral: {
+                50: '#f8fafc',
+                100: '#f1f5f9',
+                200: '#e2e8f0',
+                300: '#cbd5e1',
+                400: '#94a3b8',
+                500: '#64748b',
+                600: '#475569',
+                700: '#334155',
+                800: '#1e293b',
+                900: '#0f172a',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              display: ['Montserrat', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+              'soft': '0 2px 15px rgba(0, 0, 0, 0.08)',
+              'card': '0 4px 20px rgba(0, 0, 0, 0.05)',
+            },
+            borderRadius: {
+              'xl': '1rem',
+              '2xl': '1.5rem',
+            }
+          }
+        }
+      }
+    </script>
     <!-- Link to Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
       /* Simple spinner */
       .loader {
-        border: 4px solid #f3f3f3; /* Light grey */
-        border-top: 4px solid #3498db; /* Blue */
+        border: 3px solid rgba(203, 213, 225, 0.3); /* Light neutral border */
+        border-top: 3px solid #0ea5e9; /* Primary 500 */
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        animation: spin 1s linear infinite;
+        width: 28px;
+        height: 28px;
+        animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         display: inline-block; /* To control positioning */
       }
       @keyframes spin {
@@ -42,19 +116,51 @@
       #qrcode-container img {
         margin: auto;
       } /* Center QR code image if library generates it this way */
+
+      /* Custom focus states */
+      button:focus, input:focus {
+        outline: none;
+        ring: 2px;
+        ring-offset: 2px;
+        ring-color: rgba(14, 165, 233, 0.6);
+      }
+
+      /* Improved transitions */
+      button, input, a {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+
+      /* Custom scrollbar for modern browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(203, 213, 225, 0.2);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.5);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(100, 116, 139, 0.7);
+      }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <body class="bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center min-h-screen font-sans pattern-dots">
     <div
       id="app-container"
-      class="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-xl mx-auto"
+      class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-card w-full max-w-xl mx-4 sm:mx-auto border border-neutral-200"
     >
       <!-- ===== Initial View: Host or Join by ID ===== -->
       <div
         id="initial-options"
         class="text-center"
       >
-        <h1 class="text-2xl font-bold mb-6 text-gray-700">Public Goods Game</h1>
+        <h1 class="text-3xl font-bold mb-6 text-neutral-800 font-display tracking-tight game-header-decoration relative">Public Goods Game</h1>
         <div class="mb-4 flex justify-center">
           <button
             id="show-general-instructions-initial"
@@ -65,25 +171,25 @@
         </div>
         <button
           id="host-new-game"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg transition duration-150 w-full sm:w-auto mb-4"
+          class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 md:px-8 rounded-xl shadow-soft text-base md:text-lg transition duration-200 ease-in-out w-full sm:w-auto mb-4 transform hover:-translate-y-0.5"
         >
           Host New Game (Instructor)
         </button>
-        <div class="mt-6 border-t pt-6">
+        <div class="mt-4 sm:mt-6 border-t pt-4 sm:pt-6">
           <label
             for="game-id-input"
-            class="block text-sm font-medium text-gray-700 mb-1"
+            class="block text-sm font-medium text-neutral-700 mb-1"
             >Or Join Existing Game (Student):</label
           >
           <input
             type="text"
             id="game-id-input"
             placeholder="Enter Game ID (e.g., R4T6P)"
-            class="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm uppercase"
+            class="block w-full max-w-xs mx-auto px-4 py-3 border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 sm:text-sm uppercase bg-neutral-50"
           />
           <button
             id="join-by-id"
-            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 mt-2 w-full sm:w-auto"
+            class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 mt-3 w-full sm:w-auto transform hover:-translate-y-0.5"
           >
             Join with ID
           </button>
@@ -116,9 +222,12 @@
         <!-- Game Lobby Info -->
         <div
           id="game-lobby-info"
-          class="mb-6 p-4 border-2 border-dashed border-indigo-300 rounded bg-indigo-50"
+          class="mb-6 p-5 border border-secondary-300 rounded-xl bg-secondary-50 shadow-soft"
         >
-          <h3 class="text-lg font-semibold text-indigo-700 mb-2 text-center">
+          <div class="flex justify-center mb-3">
+            <div class="icon-coins"></div>
+          </div>
+          <h3 class="text-lg font-semibold text-secondary-800 mb-2 text-center font-display">
             Game Lobby Information
           </h3>
           <p class="text-sm text-center">Share this with your students:</p>
@@ -140,13 +249,14 @@
             >
             <p
               class="text-2xl font-bold text-purple-600 text-center tracking-widest"
+              class="text-2xl font-bold text-secondary-600 text-center tracking-widest font-display"
               id="game-id-display"
             ></p>
           </div>
           <div class="flex justify-center my-3">
             <div
               id="qrcode-container"
-              class="p-2 bg-white border rounded shadow"
+              class="p-3 bg-white border border-neutral-200 rounded-lg shadow-soft"
             >
               <!-- QR code will be generated here -->
             </div>
@@ -156,7 +266,7 @@
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label
               for="endowment"
@@ -261,17 +371,17 @@
         </div>
         <button
           id="start-game"
-          class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+          class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
         >
           Start Game with Connected Students
         </button>
         <div class="mt-4">
-          <h3 class="text-lg font-medium text-gray-800">
+          <h3 class="text-lg font-medium text-neutral-800 font-display">
             Connected Students (<span id="student-count">0</span>):
           </h3>
           <ul
             id="student-list"
-            class="list-disc list-inside text-gray-600 max-h-40 overflow-y-auto border p-2 rounded mt-2"
+            class="list-disc list-inside text-neutral-600 max-h-40 overflow-y-auto border border-neutral-200 p-3 rounded-lg mt-2 bg-neutral-50 shadow-soft"
           >
             <!-- Student names will appear here -->
           </ul>
@@ -291,8 +401,8 @@
           ></span
           >)
         </h2>
-        <div class="text-center mb-4 p-4 bg-indigo-100 rounded">
-          <p class="text-lg font-medium text-indigo-800">
+        <div class="text-center mb-4 p-4 bg-secondary-100 rounded-xl shadow-soft">
+          <p class="text-lg font-medium text-secondary-800 font-display">
             Round <span id="instructor-current-round">1</span> of
             <span id="instructor-total-rounds">10</span>
           </p>
@@ -309,7 +419,7 @@
           </h3>
           <div
             id="chart-container"
-            class="relative border rounded p-2 h-64 bg-gray-50"
+            class="relative border border-neutral-200 rounded-xl p-3 h-64 bg-neutral-50 shadow-soft"
           >
             <canvas id="instructorChartCanvas"></canvas>
           </div>
@@ -318,31 +428,31 @@
           <button
             id="next-stage-button"
             disabled
-            class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-150 opacity-50 cursor-not-allowed hidden"
+            class="bg-secondary-500 hover:bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 opacity-50 cursor-not-allowed hidden transform hover:-translate-y-0.5"
           >
             (Adv Stage - Manual)
           </button>
           <button
             id="next-round-button"
             disabled
-            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 opacity-50 cursor-not-allowed"
+            class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 opacity-50 cursor-not-allowed transform hover:-translate-y-0.5"
           >
             Start Next Round
           </button>
           <button
             id="reset-game-button"
-            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
           >
             Reset Game
           </button>
         </div>
         <div class="mt-4">
-          <h3 class="text-lg font-medium text-gray-800">
+          <h3 class="text-lg font-medium text-neutral-800 font-display">
             Group Details (Live - optional):
           </h3>
           <div
             id="instructor-group-details"
-            class="text-sm text-gray-600 max-h-40 overflow-y-auto border p-2 rounded mt-2"
+            class="text-sm text-neutral-600 max-h-40 overflow-y-auto border border-neutral-200 p-3 rounded-lg mt-2 bg-neutral-50 shadow-soft"
           >
             Waiting for game to start...
           </div>
@@ -364,25 +474,25 @@
           </h2>
           <button
             id="show-student-instructions"
-            class="text-blue-600 hover:text-blue-800 text-sm underline focus:outline-none"
+            class="text-primary-600 hover:text-primary-700 text-sm underline focus:outline-none transition-colors"
           >
             View Instructions
           </button>
         </div>
         <label
           for="student-name"
-          class="block text-sm font-medium text-gray-700 mb-1"
+          class="block text-sm font-medium text-neutral-700 mb-1"
           >Enter Your Name:</label
         >
         <input
           type="text"
           id="student-name"
           placeholder="e.g., Alex Smith"
-          class="mb-4 block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          class="mb-4 block w-full max-w-xs mx-auto px-4 py-3 border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 sm:text-sm bg-neutral-50"
         />
         <button
           id="submit-student-name"
-          class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+          class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
         >
           Join Game
         </button>
@@ -400,9 +510,14 @@
         id="student-game"
         class="hidden"
       >
-        <div class="flex justify-between items-center mb-3 pb-2 border-b">
+        <div class="stage-indicator">
+          <div class="stage-dot active" id="contribution-dot" title="Contribution Stage"></div>
+          <div class="stage-dot" id="punishment-dot" title="Punishment Stage"></div>
+          <div class="stage-dot" id="feedback-dot" title="Results Stage"></div>
+        </div>
+        <div class="flex justify-between items-center mb-3 pb-2 border-b border-neutral-200">
           <div class="flex items-center">
-            <h2 class="text-xl font-semibold text-gray-700 mr-2">
+            <h2 class="text-xl font-semibold text-neutral-800 mr-2 font-display">
               Round <span id="student-current-round">1</span>/<span
                 id="student-total-rounds"
                 >10</span
@@ -410,20 +525,20 @@
             </h2>
             <button
               id="show-student-game-instructions"
-              class="text-blue-600 hover:text-blue-800 text-xs underline focus:outline-none"
+              class="text-primary-600 hover:text-primary-700 text-xs underline focus:outline-none transition-colors"
             >
               (Help)
             </button>
           </div>
           <div class="text-right">
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-neutral-500">
               Game ID:
               <span
                 id="student-game-id-display"
                 class="font-mono"
               ></span>
             </p>
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-neutral-600">
               Your Endowment:
               <span
                 id="student-endowment"
@@ -432,7 +547,7 @@
               >
               tokens
             </p>
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-neutral-600">
               Total Earned:
               <span
                 id="student-total-earned"
@@ -446,7 +561,7 @@
 
         <!-- Contribution Stage -->
         <div id="contribution-stage">
-          <p class="mb-3 text-gray-700">
+          <p class="mb-3 text-neutral-700">
             Decide how many tokens (0 -
             <span id="student-max-contribution">20</span>) to contribute to the
             group project:
@@ -457,17 +572,17 @@
             min="0"
             max="20"
             placeholder="0"
-            class="block w-full mb-4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-center text-lg"
+            class="block w-full mb-4 px-4 py-3 border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 sm:text-sm text-center text-lg bg-neutral-50"
           />
           <button
             id="submit-contribution"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+            class="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
           >
             Submit Contribution
           </button>
           <p
             id="contribution-wait"
-            class="mt-3 text-center text-gray-500 hidden"
+            class="mt-3 text-center text-neutral-500 hidden"
           >
             Contribution submitted. Waiting for others...
             <span class="loader"></span>
@@ -479,14 +594,14 @@
           id="punishment-stage"
           class="hidden"
         >
-          <h3 class="text-lg font-semibold mb-3 text-center text-indigo-700">
+          <h3 class="text-lg font-semibold mb-3 text-center text-secondary-700 font-display">
             Punishment Stage
           </h3>
-          <p class="text-sm text-gray-600 mb-1">
+          <p class="text-sm text-neutral-600 mb-1">
             You earned <strong id="round-earnings-pre-punish">X</strong> tokens
             this round (before punishment).
           </p>
-          <p class="text-sm text-gray-600 mb-3">
+          <p class="text-sm text-neutral-600 mb-3">
             You can spend up to
             <strong id="max-punish-per-target">Z</strong> points per person to
             punish others (cost: <span id="punish-cost-display">1</span>,
@@ -501,13 +616,13 @@
           </div>
           <button
             id="submit-punishment"
-            class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150"
+            class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
           >
             Submit Punishments (even if all are 0)
           </button>
           <p
             id="punishment-wait"
-            class="mt-3 text-center text-gray-500 hidden"
+            class="mt-3 text-center text-neutral-500 hidden"
           >
             Punishments submitted. Waiting for others...
             <span class="loader"></span>
@@ -517,25 +632,27 @@
         <!-- Feedback Stage -->
         <div
           id="feedback-stage"
-          class="hidden mt-4 p-4 border rounded bg-gray-50"
+          class="hidden mt-4 p-5 border border-neutral-200 rounded-xl bg-neutral-50 shadow-soft"
         >
-          <h3 class="text-lg font-semibold mb-3 text-center text-green-700">
+          <h3 class="text-lg font-semibold mb-3 text-center text-accent-700 font-display">
             Round Results
           </h3>
-          <div class="space-y-1 text-sm">
-            <p>
-              Your contribution:
-              <strong id="feedback-your-contribution"></strong> tokens
-            </p>
-            <p>
-              Group total contribution:
-              <strong id="feedback-group-contribution"></strong> tokens
-            </p>
-            <p>Tokens kept: <strong id="feedback-tokens-kept"></strong></p>
-            <p>
-              Earnings from project:
-              <strong id="feedback-project-earnings"></strong>
-            </p>
+          <div class="space-y-2 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+              <p>
+                Your contribution:
+                <strong id="feedback-your-contribution"></strong> tokens
+              </p>
+              <p>
+                Group total contribution:
+                <strong id="feedback-group-contribution"></strong> tokens
+              </p>
+              <p>Tokens kept: <strong id="feedback-tokens-kept"></strong></p>
+              <p>
+                Earnings from project:
+                <strong id="feedback-project-earnings"></strong>
+              </p>
+            </div>
             <p class="border-t pt-1 mt-1">
               Earnings before punishment:
               <strong id="feedback-pre-punish-earnings"></strong>
@@ -544,14 +661,16 @@
               id="punishment-feedback"
               class="hidden text-red-600 border-t pt-1 mt-1"
             >
-              <p>
-                Punishment cost (spent):
-                <strong id="feedback-punish-cost"></strong> tokens
-              </p>
-              <p>
-                Punishment received (loss):
-                <strong id="feedback-punish-received"></strong> tokens
-              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+                <p>
+                  Punishment cost (spent):
+                  <strong id="feedback-punish-cost"></strong> tokens
+                </p>
+                <p>
+                  Punishment received (loss):
+                  <strong id="feedback-punish-received"></strong> tokens
+                </p>
+              </div>
             </div>
             <p class="font-bold text-base border-t pt-1 mt-1">
               Final earnings this round:
@@ -560,7 +679,7 @@
           </div>
           <p
             id="feedback-wait"
-            class="mt-3 text-center text-gray-500 hidden"
+            class="mt-3 text-center text-neutral-500 hidden"
           >
             Waiting for instructor to start next round...
             <span class="loader"></span>
@@ -573,46 +692,57 @@
         id="game-over"
         class="hidden text-center"
       >
-        <h2 class="text-2xl font-bold mb-4 text-gray-700">Game Over!</h2>
-        <p class="text-sm text-gray-500 mb-2">
+        <!-- Confetti animation elements -->
+        <div class="confetti" style="left: 10%; animation-delay: 0.1s;"></div>
+        <div class="confetti" style="left: 20%; animation-delay: 0.3s;"></div>
+        <div class="confetti" style="left: 30%; animation-delay: 0.5s;"></div>
+        <div class="confetti" style="left: 40%; animation-delay: 0.2s;"></div>
+        <div class="confetti" style="left: 50%; animation-delay: 0.4s;"></div>
+        <div class="confetti" style="left: 60%; animation-delay: 0.6s;"></div>
+        <div class="confetti" style="left: 70%; animation-delay: 0.3s;"></div>
+        <div class="confetti" style="left: 80%; animation-delay: 0.5s;"></div>
+        <div class="confetti" style="left: 90%; animation-delay: 0.1s;"></div>
+        
+        <h2 class="text-2xl font-bold mb-4 text-neutral-800 font-display">Game Over!</h2>
+        <p class="text-sm text-neutral-500 mb-2">
           Game ID:
           <span
             id="game-over-game-id"
             class="font-mono"
           ></span>
         </p>
-        <p class="text-lg text-gray-600 mb-6">
+        <p class="text-lg text-neutral-600 mb-6">
           Your final score:
           <strong
             id="final-score"
-            class="text-xl text-blue-600"
+            class="text-xl text-primary-600 font-display pulse-animation"
             >0</strong
           >
           tokens
         </p>
-        <p class="text-gray-500">Thank you for playing.</p>
+        <p class="text-neutral-500">Thank you for playing.</p>
         <!-- Instructor final results -->
         <div
           id="instructor-final-results"
           class="mt-6 hidden"
         >
-          <h3 class="text-lg font-medium text-gray-800">Final Game Summary:</h3>
+          <h3 class="text-lg font-medium text-neutral-800 font-display">Final Game Summary:</h3>
           <div
             id="final-chart-container"
-            class="relative border rounded p-2 h-64 bg-gray-50 mt-2"
+            class="relative border border-neutral-200 rounded-xl p-3 h-64 bg-neutral-50 shadow-soft mt-2"
           >
             <canvas id="instructorFinalChartCanvas"></canvas>
           </div>
           <button
             id="return-to-lobby-button"
-            class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            class="mt-4 bg-neutral-500 hover:bg-neutral-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5"
           >
             Return to Lobby / Host New Game
           </button>
         </div>
         <button
           id="student-return-to-main-button"
-          class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded hidden"
+          class="mt-4 bg-neutral-500 hover:bg-neutral-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-soft transition duration-200 transform hover:-translate-y-0.5 hidden"
         >
           Back to Main Screen
         </button>
@@ -624,6 +754,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Load QR Code Generator Library -->
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
+    
+    <!-- Load custom patterns CSS -->
+    <link rel="stylesheet" href="/patterns.css">
 
     <!-- Link to Client-side JavaScript -->
     <script src="/client.js"></script>
@@ -632,12 +765,12 @@
     <!-- Student Instructions Modal -->
     <div
       id="student-instructions-modal"
-      class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300"
+      class="fixed inset-0 bg-neutral-900 bg-opacity-75 flex items-center justify-center z-50 hidden transition-opacity duration-300 backdrop-blur-sm"
     >
       <div
-        class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4"
+        class="bg-white p-0 rounded-2xl shadow-card max-w-2xl max-h-[90vh] overflow-hidden w-full max-w-[95vw] sm:max-w-lg md:max-w-2xl mx-2 sm:mx-4 border border-neutral-200"
       >
-        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
+        <div class="bg-gradient-to-r from-primary-500 to-secondary-500 p-5">
           <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold text-white">
               Student Instructions: Public Goods Game
@@ -662,7 +795,7 @@
             </button>
           </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div class="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-80px)] scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-neutral-100 scrollbar-thumb-neutral-300">
           <div
             class="bg-blue-50 p-4 rounded-lg mb-6 border-l-4 border-blue-500"
           >
@@ -870,12 +1003,12 @@
     <!-- Instructor Instructions Modal -->
     <div
       id="instructor-instructions-modal"
-      class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300"
+      class="fixed inset-0 bg-neutral-900 bg-opacity-75 flex items-center justify-center z-50 hidden transition-opacity duration-300 backdrop-blur-sm"
     >
       <div
-        class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4"
+        class="bg-white p-0 rounded-2xl shadow-card max-w-2xl max-h-[90vh] overflow-hidden w-full max-w-[95vw] sm:max-w-lg md:max-w-2xl mx-2 sm:mx-4 border border-neutral-200"
       >
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4">
+        <div class="bg-gradient-to-r from-secondary-600 to-purple-600 p-5">
           <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold text-white">
               Instructor Guide: Public Goods Game
@@ -900,7 +1033,7 @@
             </button>
           </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div class="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-80px)] scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-neutral-100 scrollbar-thumb-neutral-300">
           <div
             class="bg-indigo-50 p-4 rounded-lg mb-6 border-l-4 border-indigo-500"
           >
