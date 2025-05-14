@@ -1,5 +1,11 @@
-.git
 node_modules
 npm-debug.log
 Dockerfile
 .dockerignore
+.git
+.gitignore
+README.md
+# Any other local development files/folders
+*.env
+# macOS specific
+.DS_Store

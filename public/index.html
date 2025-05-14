@@ -39,6 +39,9 @@
       input[type="number"] {
         -moz-appearance: textfield; /* Firefox */
       }
+      #qrcode-container img {
+        margin: auto;
+      } /* Center QR code image if library generates it this way */
     </style>
   </head>
   <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -46,35 +49,48 @@
       id="app-container"
       class="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-xl mx-auto"
     >
-      <!-- ===== Initial View: Role Selection ===== -->
+      <!-- ===== Initial View: Host or Join by ID ===== -->
       <div
-        id="role-selection"
+        id="initial-options"
         class="text-center"
       >
         <h1 class="text-2xl font-bold mb-6 text-gray-700">Public Goods Game</h1>
         <div class="mb-4 flex justify-center">
           <button
-            id="show-general-instructions"
+            id="show-general-instructions-initial"
             class="text-blue-600 hover:text-blue-800 text-sm underline focus:outline-none"
           >
             What is the Public Goods Game?
           </button>
         </div>
         <button
-          id="join-instructor"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-4 transition duration-150"
+          id="host-new-game"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg transition duration-150 w-full sm:w-auto mb-4"
         >
-          I am the Instructor
+          Host New Game (Instructor)
         </button>
-        <button
-          id="join-student"
-          class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150"
-        >
-          I am a Student
-        </button>
+        <div class="mt-6 border-t pt-6">
+          <label
+            for="game-id-input"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Or Join Existing Game (Student):</label
+          >
+          <input
+            type="text"
+            id="game-id-input"
+            placeholder="Enter Game ID (e.g., R4T6P)"
+            class="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm uppercase"
+          />
+          <button
+            id="join-by-id"
+            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 mt-2 w-full sm:w-auto"
+          >
+            Join with ID
+          </button>
+        </div>
         <p
           id="connection-status"
-          class="mt-4 text-sm text-gray-500"
+          class="mt-6 text-sm text-gray-500"
         >
           Connecting...
         </p>
@@ -86,7 +102,7 @@
         class="hidden"
       >
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-center text-gray-700">
+          <h2 class="text-xl font-semibold text-gray-700">
             Instructor Panel - Setup Game
           </h2>
           <button
@@ -96,6 +112,50 @@
             View Instructor Guide
           </button>
         </div>
+
+        <!-- Game Lobby Info -->
+        <div
+          id="game-lobby-info"
+          class="mb-6 p-4 border-2 border-dashed border-indigo-300 rounded bg-indigo-50"
+        >
+          <h3 class="text-lg font-semibold text-indigo-700 mb-2 text-center">
+            Game Lobby Information
+          </h3>
+          <p class="text-sm text-center">Share this with your students:</p>
+          <div class="my-2">
+            <label class="block text-xs font-medium text-gray-500"
+              >Game URL (Shareable Link):</label
+            >
+            <input
+              type="text"
+              id="game-url-display"
+              readonly
+              class="w-full p-1 border bg-gray-100 rounded text-center text-blue-600 cursor-pointer"
+              onclick="this.select(); document.execCommand('copy'); alert('URL Copied!');"
+            />
+          </div>
+          <div class="my-2">
+            <label class="block text-xs font-medium text-gray-500"
+              >Game ID (For manual entry):</label
+            >
+            <p
+              class="text-2xl font-bold text-purple-600 text-center tracking-widest"
+              id="game-id-display"
+            ></p>
+          </div>
+          <div class="flex justify-center my-3">
+            <div
+              id="qrcode-container"
+              class="p-2 bg-white border rounded shadow"
+            >
+              <!-- QR code will be generated here -->
+            </div>
+          </div>
+          <p class="text-xs text-gray-600 text-center">
+            Students can scan the QR code or use the URL/ID.
+          </p>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label
@@ -224,7 +284,12 @@
         class="hidden"
       >
         <h2 class="text-xl font-semibold mb-4 text-center text-gray-700">
-          Instructor Panel - Game Running
+          Instructor Panel - Game Running (ID:
+          <span
+            id="instructor-game-id"
+            class="font-mono"
+          ></span
+          >)
         </h2>
         <div class="text-center mb-4 p-4 bg-indigo-100 rounded">
           <p class="text-lg font-medium text-indigo-800">
@@ -242,21 +307,18 @@
           <h3 class="text-lg font-medium text-gray-800 mb-2">
             Average Contribution per Round:
           </h3>
-          <!-- Chart Canvas Container -->
           <div
             id="chart-container"
             class="relative border rounded p-2 h-64 bg-gray-50"
           >
             <canvas id="instructorChartCanvas"></canvas>
-            <!-- <<< CANVAS FOR CHART -->
           </div>
         </div>
         <div class="flex justify-center space-x-4">
-          <!-- Instructor control buttons -->
           <button
             id="next-stage-button"
             disabled
-            class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-150 opacity-50 cursor-not-allowed"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-150 opacity-50 cursor-not-allowed hidden"
           >
             (Adv Stage - Manual)
           </button>
@@ -287,13 +349,19 @@
         </div>
       </div>
 
-      <!-- ===== Student View: Joining ===== -->
+      <!-- ===== Student View: Joining Game ===== -->
       <div
         id="student-join"
         class="hidden text-center"
       >
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-700">Join Game</h2>
+          <h2 class="text-xl font-semibold text-gray-700">
+            Joining Game:
+            <span
+              id="joining-game-id-display"
+              class="font-mono text-blue-600"
+            ></span>
+          </h2>
           <button
             id="show-student-instructions"
             class="text-blue-600 hover:text-blue-800 text-sm underline focus:outline-none"
@@ -316,13 +384,14 @@
           id="submit-student-name"
           class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150"
         >
-          Join
+          Join Game
         </button>
         <p
           id="student-wait-message"
           class="mt-4 text-gray-600 hidden"
         >
           Waiting for instructor to start the game...
+          <span class="loader"></span>
         </p>
       </div>
 
@@ -347,6 +416,13 @@
             </button>
           </div>
           <div class="text-right">
+            <p class="text-xs text-gray-500">
+              Game ID:
+              <span
+                id="student-game-id-display"
+                class="font-mono"
+              ></span>
+            </p>
             <p class="text-sm text-gray-600">
               Your Endowment:
               <span
@@ -394,6 +470,7 @@
             class="mt-3 text-center text-gray-500 hidden"
           >
             Contribution submitted. Waiting for others...
+            <span class="loader"></span>
           </p>
         </div>
 
@@ -433,6 +510,7 @@
             class="mt-3 text-center text-gray-500 hidden"
           >
             Punishments submitted. Waiting for others...
+            <span class="loader"></span>
           </p>
         </div>
 
@@ -462,7 +540,6 @@
               Earnings before punishment:
               <strong id="feedback-pre-punish-earnings"></strong>
             </p>
-            <!-- Punishment Feedback -->
             <div
               id="punishment-feedback"
               class="hidden text-red-600 border-t pt-1 mt-1"
@@ -486,6 +563,7 @@
             class="mt-3 text-center text-gray-500 hidden"
           >
             Waiting for instructor to start next round...
+            <span class="loader"></span>
           </p>
         </div>
       </div>
@@ -496,6 +574,13 @@
         class="hidden text-center"
       >
         <h2 class="text-2xl font-bold mb-4 text-gray-700">Game Over!</h2>
+        <p class="text-sm text-gray-500 mb-2">
+          Game ID:
+          <span
+            id="game-over-game-id"
+            class="font-mono"
+          ></span>
+        </p>
         <p class="text-lg text-gray-600 mb-6">
           Your final score:
           <strong
@@ -512,302 +597,665 @@
           class="mt-6 hidden"
         >
           <h3 class="text-lg font-medium text-gray-800">Final Game Summary:</h3>
-          <!-- Final Chart Container -->
           <div
             id="final-chart-container"
             class="relative border rounded p-2 h-64 bg-gray-50 mt-2"
           >
             <canvas id="instructorFinalChartCanvas"></canvas>
-            <!-- <<< CANVAS FOR FINAL CHART -->
           </div>
+          <button
+            id="return-to-lobby-button"
+            class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Return to Lobby / Host New Game
+          </button>
         </div>
+        <button
+          id="student-return-to-main-button"
+          class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded hidden"
+        >
+          Back to Main Screen
+        </button>
       </div>
     </div>
     <!-- end #app-container -->
 
-    <!-- Load Chart.js *before* client.js -->
+    <!-- Load Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
 
     <!-- Link to Client-side JavaScript -->
-    <script src="client.js"></script>
-    <!-- Instruction Modals -->
+    <script src="/client.js"></script>
+
+    <!-- Instruction Modals (content same as before, just ensure they are present) -->
     <!-- Student Instructions Modal -->
-    <div id="student-instructions-modal" class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300">
-      <div class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4">
-        <!-- Header with gradient background -->
+    <div
+      id="student-instructions-modal"
+      class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300"
+    >
+      <div
+        class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4"
+      >
         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
           <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold text-white">Student Instructions: Public Goods Game</h2>
-            <button id="close-student-instructions" class="text-white hover:text-gray-200 focus:outline-none transition duration-150">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <h2 class="text-xl font-bold text-white">
+              Student Instructions: Public Goods Game
+            </h2>
+            <button
+              id="close-student-instructions"
+              class="text-white hover:text-gray-200 focus:outline-none transition duration-150"
+            >
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
             </button>
           </div>
         </div>
-        
-        <!-- Content with improved styling -->
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          <div class="bg-blue-50 p-4 rounded-lg mb-6 border-l-4 border-blue-500">
-            <h3 class="text-lg font-bold text-blue-800 mb-2">Welcome to the Public Goods Game</h3>
+          <div
+            class="bg-blue-50 p-4 rounded-lg mb-6 border-l-4 border-blue-500"
+          >
+            <h3 class="text-lg font-bold text-blue-800 mb-2">
+              Welcome to the Public Goods Game
+            </h3>
             <p class="text-blue-700">
-              This game simulates economic decisions about contributing to public goods. Public goods are resources that benefit everyone in a group regardless of who contributes.
+              This game simulates economic decisions about contributing to
+              public goods. Public goods are resources that benefit everyone in
+              a group regardless of who contributes.
             </p>
           </div>
-          
           <div class="mb-6">
             <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
               </svg>
               How the Game Works:
             </h4>
             <ol class="space-y-2 ml-6 text-gray-700">
               <li class="flex items-start">
-                <span class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">1</span>
-                <div><strong class="text-blue-800">Groups:</strong> You will be randomly assigned to a group of players.</div>
+                <span
+                  class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                  >1</span
+                >
+                <div>
+                  <strong class="text-blue-800">Groups:</strong> You will be
+                  randomly assigned to a group of players.
+                </div>
               </li>
               <li class="flex items-start">
-                <span class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">2</span>
-                <div><strong class="text-blue-800">Endowment:</strong> Each round, you receive tokens (your endowment).</div>
+                <span
+                  class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                  >2</span
+                >
+                <div>
+                  <strong class="text-blue-800">Endowment:</strong> Each round,
+                  you receive tokens (your endowment).
+                </div>
               </li>
               <li class="flex items-start">
-                <span class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">3</span>
-                <div><strong class="text-blue-800">Contribution Decision:</strong> You decide how many tokens to contribute to a group project (0 to your full endowment).</div>
+                <span
+                  class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                  >3</span
+                >
+                <div>
+                  <strong class="text-blue-800">Contribution Decision:</strong>
+                  You decide how many tokens to contribute to a group project (0
+                  to your full endowment).
+                </div>
               </li>
               <li class="flex items-start">
-                <span class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">4</span>
-                <div><strong class="text-blue-800">Project Returns:</strong> All contributions to the project are multiplied by a factor (MPCR) and divided equally among all group members, regardless of how much each person contributed.</div>
+                <span
+                  class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                  >4</span
+                >
+                <div>
+                  <strong class="text-blue-800">Project Returns:</strong> All
+                  contributions to the project are multiplied by a factor (MPCR)
+                  and divided equally among all group members, regardless of how
+                  much each person contributed.
+                </div>
               </li>
               <li class="flex items-start">
-                <span class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">5</span>
-                <div><strong class="text-blue-800">Earnings:</strong> Your earnings each round = (tokens you kept) + (your share of project returns)</div>
+                <span
+                  class="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                  >5</span
+                >
+                <div>
+                  <strong class="text-blue-800">Earnings:</strong> Your earnings
+                  each round = (tokens you kept) + (your share of project
+                  returns)
+                </div>
               </li>
             </ol>
           </div>
-          
           <div class="mb-6 bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
             <h4 class="text-lg font-bold text-red-800 mb-2 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
               </svg>
               Punishment Phase (if enabled):
             </h4>
             <p class="text-red-700">
-              After seeing everyone's contributions, you may have the opportunity to assign punishment points to other group members. Each punishment point costs you tokens and reduces the earnings of the targeted player.
+              After seeing everyone's contributions, you may have the
+              opportunity to assign punishment points to other group members.
+              Each punishment point costs you tokens and reduces the earnings of
+              the targeted player.
             </p>
           </div>
-          
           <div class="mb-6">
             <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                ></path>
               </svg>
               Strategy Considerations:
             </h4>
             <ul class="space-y-2 text-gray-700 ml-6">
               <li class="flex items-start">
-                <svg class="w-5 h-5 mr-2 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg
+                  class="w-5 h-5 mr-2 text-green-600 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
                 </svg>
-                <span>If everyone contributes all tokens, the group as a whole earns the most.</span>
+                <span
+                  >If everyone contributes all tokens, the group as a whole
+                  earns the most.</span
+                >
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 mr-2 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                <svg
+                  class="w-5 h-5 mr-2 text-yellow-600 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  ></path>
                 </svg>
-                <span>However, individuals might earn more by keeping their tokens while others contribute.</span>
+                <span
+                  >However, individuals might earn more by keeping their tokens
+                  while others contribute.</span
+                >
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 mr-2 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg
+                  class="w-5 h-5 mr-2 text-purple-600 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
                 </svg>
-                <span>This creates a social dilemma: what's best for the individual may conflict with what's best for the group.</span>
+                <span
+                  >This creates a social dilemma: what's best for the individual
+                  may conflict with what's best for the group.</span
+                >
               </li>
             </ul>
           </div>
-          
-          <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 text-center">
-            <p class="text-lg font-bold text-green-800">Good luck with your decisions!</p>
+          <div
+            class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 text-center"
+          >
+            <p class="text-lg font-bold text-green-800">
+              Good luck with your decisions!
+            </p>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Instructor Instructions Modal -->
-    <div id="instructor-instructions-modal" class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300">
-      <div class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4">
-        <!-- Header with gradient background -->
+    <div
+      id="instructor-instructions-modal"
+      class="fixed inset-0 bg-gray-700 bg-opacity-70 flex items-center justify-center z-50 hidden transition-opacity duration-300"
+    >
+      <div
+        class="bg-white p-0 rounded-lg shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden w-full mx-4"
+      >
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4">
           <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold text-white">Instructor Guide: Public Goods Game</h2>
-            <button id="close-instructor-instructions" class="text-white hover:text-gray-200 focus:outline-none transition duration-150">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <h2 class="text-xl font-bold text-white">
+              Instructor Guide: Public Goods Game
+            </h2>
+            <button
+              id="close-instructor-instructions"
+              class="text-white hover:text-gray-200 focus:outline-none transition duration-150"
+            >
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
             </button>
           </div>
         </div>
-        
-        <!-- Content with improved styling -->
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          <div class="bg-indigo-50 p-4 rounded-lg mb-6 border-l-4 border-indigo-500">
-            <h3 class="text-lg font-bold text-indigo-800 mb-2 flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          <div
+            class="bg-indigo-50 p-4 rounded-lg mb-6 border-l-4 border-indigo-500"
+          >
+            <h3
+              class="text-lg font-bold text-indigo-800 mb-2 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
               </svg>
               Setting Up the Game
             </h3>
             <p class="text-indigo-700">
-              As the instructor, you control the game parameters and flow. The Public Goods Game demonstrates concepts like free-riding, cooperation, and social dilemmas.
+              As the instructor, you control the game parameters and flow. The
+              Public Goods Game demonstrates concepts like free-riding,
+              cooperation, and social dilemmas. When you host a game, a unique
+              Game ID and URL will be generated. Share this with your students
+              so they can join your specific game session.
             </p>
           </div>
-          
           <div class="mb-6">
             <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
               </svg>
               Game Parameters:
             </h4>
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Endowment:</strong> Tokens each player receives per round (typically 20)
+                    <strong class="text-indigo-800">Endowment:</strong> Tokens
+                    each player receives per round (typically 20)
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">MPCR:</strong> The multiplier for the group project (typically 0.4)
+                    <strong class="text-indigo-800">MPCR:</strong> The
+                    multiplier for the group project (typically 0.4)
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Total Rounds:</strong> Number of rounds to play (typically 10)
+                    <strong class="text-indigo-800">Total Rounds:</strong>
+                    Number of rounds to play (typically 10)
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Punishment Round:</strong> Set to 0 to disable, or round number when punishment starts
+                    <strong class="text-indigo-800">Punishment Round:</strong>
+                    Set to 0 to disable, or round number when punishment starts
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M20 12H4"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Punishment Cost:</strong> Cost to assign 1 punishment point
+                    <strong class="text-indigo-800">Punishment Cost:</strong>
+                    Cost to assign 1 punishment point
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Punishment Effect:</strong> Tokens lost when receiving 1 punishment point
+                    <strong class="text-indigo-800">Punishment Effect:</strong>
+                    Tokens lost when receiving 1 punishment point
                   </div>
                 </li>
                 <li class="flex items-start">
-                  <div class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                  <div
+                    class="bg-indigo-600 text-white rounded p-1 flex-shrink-0 mr-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                      ></path>
                     </svg>
                   </div>
                   <div>
-                    <strong class="text-indigo-800">Max Punishment:</strong> Maximum points assignable to a single player
+                    <strong class="text-indigo-800">Max Punishment:</strong>
+                    Maximum points assignable to a single player
                   </div>
                 </li>
               </ul>
             </div>
           </div>
-          
           <div class="mb-6">
             <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                ></path>
               </svg>
               Game Controls:
             </h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-              <div class="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
+              <div
+                class="bg-green-50 rounded-lg p-3 border-l-4 border-green-500"
+              >
                 <div class="font-bold text-green-800">Start Game</div>
-                <div class="text-sm text-green-700">Begins the game with current settings and connected students</div>
+                <div class="text-sm text-green-700">
+                  Begins the game with current settings and connected students
+                </div>
               </div>
               <div class="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
                 <div class="font-bold text-red-800">Reset Game</div>
-                <div class="text-sm text-red-700">Ends the current game and returns everyone to the lobby</div>
+                <div class="text-sm text-red-700">
+                  Ends the current game and returns everyone to the lobby for
+                  this Game ID
+                </div>
               </div>
-              <div class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
+              <div
+                class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500"
+              >
                 <div class="font-bold text-yellow-800">Remove Student</div>
-                <div class="text-sm text-yellow-700">Click the × next to a student's name (only works before game starts)</div>
+                <div class="text-sm text-yellow-700">
+                  Click the × next to a student's name (only works before game
+                  starts)
+                </div>
               </div>
               <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
                 <div class="font-bold text-blue-800">Next Round</div>
-                <div class="text-sm text-blue-700">Advance to the next round after the feedback stage</div>
+                <div class="text-sm text-blue-700">
+                  Advance to the next round after the feedback stage
+                </div>
               </div>
             </div>
           </div>
-          
           <div class="mb-6">
             <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              <svg
+                class="w-5 h-5 mr-2 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                ></path>
               </svg>
               Teaching Tips:
             </h4>
             <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <ol class="space-y-2">
                 <li class="flex items-start">
-                  <span class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">1</span>
-                  <span class="text-gray-700">Explain the concept of public goods and social dilemmas before playing</span>
+                  <span
+                    class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                    >1</span
+                  >
+                  <span class="text-gray-700"
+                    >Explain the concept of public goods and social dilemmas
+                    before playing</span
+                  >
                 </li>
                 <li class="flex items-start">
-                  <span class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">2</span>
-                  <span class="text-gray-700">Consider playing a few rounds without punishment followed by rounds with punishment</span>
+                  <span
+                    class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                    >2</span
+                  >
+                  <span class="text-gray-700"
+                    >Consider playing a few rounds without punishment followed
+                    by rounds with punishment</span
+                  >
                 </li>
                 <li class="flex items-start">
-                  <span class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">3</span>
-                  <span class="text-gray-700">Use the results chart to discuss how contributions changed over time</span>
+                  <span
+                    class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                    >3</span
+                  >
+                  <span class="text-gray-700"
+                    >Use the results chart to discuss how contributions changed
+                    over time</span
+                  >
                 </li>
                 <li class="flex items-start">
-                  <span class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">4</span>
-                  <span class="text-gray-700">Discuss free-riding behavior and how punishment affects cooperation</span>
+                  <span
+                    class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                    >4</span
+                  >
+                  <span class="text-gray-700"
+                    >Discuss free-riding behavior and how punishment affects
+                    cooperation</span
+                  >
                 </li>
                 <li class="flex items-start">
-                  <span class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">5</span>
-                  <span class="text-gray-700">Connect the exercise to real-world examples of public goods (environmental protection, public infrastructure, etc.)</span>
+                  <span
+                    class="bg-purple-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2"
+                    >5</span
+                  >
+                  <span class="text-gray-700"
+                    >Connect the exercise to real-world examples of public goods
+                    (environmental protection, public infrastructure,
+                    etc.)</span
+                  >
                 </li>
               </ol>
             </div>
           </div>
-          
-          <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500 text-center">
+          <div
+            class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500 text-center"
+          >
             <p class="text-purple-800 font-medium">Happy teaching!</p>
           </div>
         </div>
